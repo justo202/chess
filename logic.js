@@ -19,6 +19,7 @@ function precomputeData() //calculates the distance to the side from each square
   }
   initialiseFenString(fenstr);
   moves = generateMoves();
+
 }
 function initialiseFenString(fenStr)
 {
@@ -204,15 +205,37 @@ function generateSlidingPiece(startSquare, piece, moves)
       }
       var move = {startSquare: startSquare, targetSquare: targetSquare};
       moves.push(move);
-      if((pieceOnSquare != "" && pieceOnSquare.charAt(1) != "e" && pieceOnSquare.charAt(0) != currentTurn) || (piece.charAt(1) == "k")) //if it's the opposite color piece then capture it and move to the next direction
+      if((pieceOnSquare != "" && pieceOnSquare.charAt(1) != "e" && pieceOnSquare.charAt(0) != currentTurn) || (!castlingMove(direction,piece,n,targetSquare) &&piece.charAt(1) == "k")) //if it's the opposite color piece then capture it and move to the next direction
       {
         break;
       }
     }
   }
 }
+function castlingMove(curDirection, piece, num, targetSquare)
+{
+  var p = board[targetSquare+directionOffsets[3]*2]; //checks if there are no pieces between the rook and the king, else castling can't be done
+  if(curDirection == 2 && num < 1)
+  {
+    if(piece == wKing)
+      return (castling[1] == 0);
+    else if(piece == bKing)
+      return (castling[3] == 0)
+  }
+  else if(curDirection == 3 && num < 1 && p == "")
+  {
+    if(piece == wKing)
+      return (castling[0] == 0);
+    else if(piece == bKing)
+      return (castling[2] == 0);
+  }
+  return false;
+
+}
 function moveMade(startSquare, targetSquare)
 {
+  if(castling.includes(0)) //check if its still possible for a king to castle
+    checkCastling(startSquare, targetSquare);
   upgradePawnLogic(startSquare,targetSquare);
   enPassantCheck(startSquare,targetSquare);
   board[targetSquare] = board[startSquare];
@@ -221,13 +244,39 @@ function moveMade(startSquare, targetSquare)
     currentTurn = "b";
   else
     currentTurn = "w";
-
   removeHidden(currentTurn);
   moves = generateMoves(); //generates new moves
-
   fenstr = updateFenStr();
-  console.log(fenstr);
 }
+
+
+function checkCastling(startSquare, targetSquare)
+{
+  var rook = wRook;
+  var p = board[startSquare];
+  if(p == wKing) //if white king moved then castling is not possible in both directions
+  {
+    castling[0] = 1;
+    castling[1] = 1;
+  } else if(p == bKing)
+  {
+    castling[2] = 1;
+    castling[3] = 1;
+  }
+  for(var i = 0; i < 2;i++)
+  {
+    for(var n = 0; n < 2; n++)
+    {
+      var temp = n*7+i*56; //gets the coordinates of a rooks starting position
+      if((p == rook && startSquare == temp) || (targetSquare == temp))
+      {
+        castling[n+2*i] = 1;
+      }
+    }
+    rook = bRook; //check the black rook now
+  }
+}
+// removes the themporary invisible pieces for "enpassant" move
 function removeHidden(curTurn)
 {
   for(var i = 0; i < 64;i++)
