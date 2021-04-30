@@ -99,7 +99,34 @@ function parseLine(item, index)
     }
   }
 }
+function toogleOpponent()
+{
 
+  var btn = document.getElementById("toogle-btn");
+  var txt = document.getElementById("btn-txt");
+  btn.onclick = function()
+{
+  if(aiOn == 0)
+  {
+    aiOn = 1;
+    txt.innerHTML = "Disable Ai opponent";
+      if(currentTurn == "b")
+        compColor = "w";
+      else
+        compColor = "b";
+
+  }
+  else
+  {
+    aiOn = 0;
+    txt.innerHTML = "Enable Ai opponent"
+  }
+};
+
+
+
+
+}
 function onclickPiece(evt)
 {
   var x = evt.currentTarget.gridx;
@@ -168,6 +195,8 @@ function dropPiece(evt, availableTiles, startx, starty)
       break;
     }
   }
+  cleanBoard(availableTiles);
+
   if(correct == 0) // if the piece was not placed in the correct place, then return it to it's original square.
   {
     evt.currentTarget.x = grid[startx][starty].x;
@@ -176,16 +205,17 @@ function dropPiece(evt, availableTiles, startx, starty)
   else { //if the piece was moved then a turn was made and swap turns and update info
     var startSquare = starty*8+x;
     var endSquare = evt.currentTarget.gridy*8+evt.currentTarget.gridx;
+
     moveMade(startSquare, endSquare); //updates the internal logic of the game
   }
 
-  cleanBoard(availableTiles);
   parseFen(fenstr); //refreshes the board
   stage.update();
 }
 //removes all the squares that indicate moves from the board and all the pieces
 function cleanBoard(shapes)
 {
+
   for(var i = 0; i < shapes.length;i++)
   {
     stage.removeChild(shapes[i]);

@@ -1,8 +1,10 @@
-
+/*
+generating legal moves.
+ make a function that will check in all possible directions if a king is under attack in the current position
+*/
 
 function precomputeData() //calculates the distance to the side from each square
 {
-  alert("yes");
   for (var j = 0; j < 8; j++){
 
     for (var i = 0; i < 8; i++){
@@ -83,6 +85,49 @@ function generateMoves()
   }
   return moves;
 }
+function islegal(move)
+{
+  var tBoard = cloneBoard(board);
+  var tcastling = cloneCastle(castling);
+  simulateMoves(move.startSquare, move.targetSquare);
+
+  var opponentsMoves = generateMoves();
+  for(var n = 0; n < opponentsMoves.length;n++)
+  {
+    if(board[opponentsMoves[n].targetSquare].charAt(1) == "k")
+    {
+      changeTurn();
+      board = cloneBoard(tBoard);
+      castling = cloneCastle(tcastling)
+      console.log("ughoooo");
+      return false;
+    }
+  }
+
+  changeTurn();
+  board = cloneBoard(tBoard);
+  castling = cloneCastle(tcastling)
+  return true;
+
+}
+function cloneBoard(toClone)
+{
+  var bClone = new Array(64).fill("");
+  for(var i = 0; i < bClone.length;i++)
+  {
+    bClone[i] = toClone[i];
+  }
+  return bClone
+}
+function cloneCastle(cast)
+{
+  var cClone = [0,0,0,0];
+  for(var i = 0; i < castling.length;i++)
+  {
+    cClone[i] = cast[i];
+  }
+  return cClone;
+}
 function isValidPiece(piece, turn) //check if it's a valid piece to generate moves to
 {
   return (piece != "" && piece.charAt(0) == turn);
@@ -116,8 +161,13 @@ function generateKnightMoves(startSquare, piece, moves)
 
         if(pieceOnSquare != "" && pieceOnSquare.charAt(1) != "e" && pieceOnSquare.charAt(0) == currentTurn) //if it's a friendly piece on that square then the piece cannot be moved
           continue;
+        if(pieceOnSquare.charAt(1) == "k" && pieceOnSquare.charAt(0) != currentTurn)
+        {
+          gameOver = 1;
+        }
         var move = {startSquare: startSquare, targetSquare: targetSquare};
-        moves.push(move);
+
+          moves.push(move);
       }
     }
   }
@@ -128,10 +178,10 @@ function generatePawnMoves(startSquare, piece, moves)
   if(piece.charAt(1) == "p")
   {
     if(piece.charAt(0) == "w")
-      directions = [1, 6, 7]; // the directions that the piece can go to 2 - south, 6 - south west, 7 - south east
+      directions = [0,4,5]; // the directions that the piece can go to 2 - south, 6 - south west, 7 - south east
     else if(piece.charAt(0) == "b")
     {
-      directions = [0,4,5];
+      directions = [1, 6, 7];
     }
     for(var i = 0; i < 3;i++)
     {
@@ -142,10 +192,10 @@ function generatePawnMoves(startSquare, piece, moves)
       if(i == 0) // check north/south of the pawn first
       {
         var depth = 1;
-        if(startSquare > 7 && startSquare < 16 && piece.charAt(0) == "w") //if it hasn't been moved then it can move 2 squares instead of 1
+        if(startSquare > 47 && startSquare < 56 && piece.charAt(0) == "w") //if it hasn't been moved then it can move 2 squares instead of 1
         {
           depth = 2;
-        }else if(startSquare > 47 && startSquare < 56 && piece.charAt(0) == "b")
+        }else if(startSquare > 7 && startSquare < 16 && piece.charAt(0) == "b")
         {
           depth = 2;
         }
@@ -158,15 +208,21 @@ function generatePawnMoves(startSquare, piece, moves)
             break;
           }
           var move = {startSquare: startSquare, targetSquare: targetSquare};
-          moves.push(move);
+
+            moves.push(move);
         }
       } else { //genertae moves diagnally of the pawn only if there is an enemy piece to capture on it
         var targetSquare = startSquare + directionOffsets[directions[i]];
         var pieceOnSquare = board[targetSquare];
         if(pieceOnSquare != "" && pieceOnSquare.charAt(0) != currentTurn)
         {
+          if(pieceOnSquare.charAt(1) == "k") //if there's a move that can capture the opponents king the game is over
+          {
+            gameOver = 1;
+          }
           var move = {startSquare: startSquare, targetSquare: targetSquare};
-          moves.push(move);
+
+            moves.push(move);
         }
 
       }
@@ -204,7 +260,13 @@ function generateSlidingPiece(startSquare, piece, moves)
         break;
       }
       var move = {startSquare: startSquare, targetSquare: targetSquare};
-      moves.push(move);
+      if(pieceOnSquare != "" && pieceOnSquare.charAt(1) == "k" && pieceOnSquare.charAt(0) != currentTurn) //if there's a move that can capture the opponents king the game is over
+      {
+        gameOver = 1;
+        break;
+      }
+      
+        moves.push(move);
       if((pieceOnSquare != "" && pieceOnSquare.charAt(1) != "e" && pieceOnSquare.charAt(0) != currentTurn) || (!castlingMove(direction,piece,n,targetSquare) &&piece.charAt(1) == "k")) //if it's the opposite color piece then capture it and move to the next direction
       {
         break;
@@ -215,65 +277,133 @@ function generateSlidingPiece(startSquare, piece, moves)
 function castlingMove(curDirection, piece, num, targetSquare)
 {
   var p = board[targetSquare+directionOffsets[3]*2]; //checks if there are no pieces between the rook and the king, else castling can't be done
-  if(curDirection == 2 && num < 1)
+  if(curDirection == 2 && num < 1) //right
   {
     if(piece == wKing)
-      return (castling[1] == 0);
+      return (castling[3] == 0);
     else if(piece == bKing)
-      return (castling[3] == 0)
+      return (castling[1] == 0)
   }
-  else if(curDirection == 3 && num < 1 && p == "")
+  else if(curDirection == 3 && num < 1 && p == "") //left
   {
     if(piece == wKing)
-      return (castling[0] == 0);
-    else if(piece == bKing)
       return (castling[2] == 0);
+    else if(piece == bKing)
+      return (castling[0] == 0);
   }
   return false;
-
 }
 function moveMade(startSquare, targetSquare)
 {
   if(castling.includes(0)) //check if its still possible for a king to castle
+  {
+    executeCastling(startSquare, targetSquare);
     checkCastling(startSquare, targetSquare);
+  }
+
   upgradePawnLogic(startSquare,targetSquare);
   enPassantCheck(startSquare,targetSquare);
   board[targetSquare] = board[startSquare];
   board[startSquare] = "";
+  changeTurn();
+  removeHidden(currentTurn);
+  moves = generateMoves(board); //generates new moves
+  if(gameOver == 1) //check if game is over
+  {
+    var endText;
+    if(currentTurn == "w")
+    {
+      endText = "White wins!";
+    }
+    else {
+      endText = "Black wins!";
+    }
+    document.getElementById("top").style.display = "block";
+    document.getElementById("end-text").innerHTML = endText;
+  }
+  fenstr = updateFenStr();
+  if(aiOn == 1 && compColor == currentTurn)
+  {
+    computerMakeMove();
+  }
+}
+function simulateMoves(startSquare, targetSquare)
+{
+  if(castling.includes(0)) //check if its still possible for a king to castle
+  {
+    executeCastling(startSquare, targetSquare);
+    checkCastling(startSquare, targetSquare);
+  }
+  upgradePawnLogic(startSquare,targetSquare);
+  enPassantCheck(startSquare,targetSquare);
+  board[targetSquare] = board[startSquare];
+  board[startSquare] = "";
+  changeTurn();
+  removeHidden(currentTurn);
+}
+function changeTurn()
+{
   if(currentTurn == "w")
     currentTurn = "b";
   else
     currentTurn = "w";
-  removeHidden(currentTurn);
-  moves = generateMoves(); //generates new moves
-  fenstr = updateFenStr();
 }
-
-
+//executes the castling for the king if needed
+function executeCastling(startSquare,targetSquare)
+{
+  if(board[startSquare].charAt(1) == "k") //only perform the check if the moved piece is a king
+  {
+    var diff = targetSquare-startSquare; //check how much did the piece move
+    if(diff == directionOffsets[2]*2) //if the piece was moved 2 squares to the right
+    {
+      var moveTarget = targetSquare+directionOffsets[3];
+      if(board[startSquare] == wKing)
+      {
+        board[63] = ""; //move the rook at the start to the left of the king
+        board[moveTarget] = wRook;
+      } else {
+        board[7] = "";
+        board[moveTarget] = bRook;
+      }
+    }
+    else if(diff == directionOffsets[3]*2) //if the piece was moved 2 squares to the left
+    {
+      var moveTarget = targetSquare+directionOffsets[2];
+      if(board[startSquare] == wKing)
+      {
+        board[56] = ""; //move the rook at the start to the right of the king
+        board[moveTarget] = wRook;
+      } else {
+        board[0] = "";
+        board[moveTarget] = bRook;
+      }
+    }
+  }
+}
 function checkCastling(startSquare, targetSquare)
 {
-  var rook = wRook;
+  var rook = bRook;
   var p = board[startSquare];
   if(p == wKing) //if white king moved then castling is not possible in both directions
   {
-    castling[0] = 1;
-    castling[1] = 1;
-  } else if(p == bKing)
-  {
     castling[2] = 1;
     castling[3] = 1;
+  } else if(p == bKing)
+  {
+    castling[0] = 1;
+    castling[1] = 1;
   }
   for(var i = 0; i < 2;i++)
   {
     for(var n = 0; n < 2; n++)
     {
       var temp = n*7+i*56; //gets the coordinates of a rooks starting position
-      if((p == rook && startSquare == temp) || (targetSquare == temp))
+      if((p == rook && startSquare == temp) || (targetSquare == temp)) //if a rook moved or a rook was captured then remove the castling posibility for that rook
       {
         castling[n+2*i] = 1;
       }
     }
-    rook = bRook; //check the black rook now
+    rook = wRook; //check the white rook now
   }
 }
 // removes the themporary invisible pieces for "enpassant" move
@@ -352,15 +482,13 @@ function findFenSymbol(item)
 }
 function enPassantCheck(startSquare, targetSquare)
 {
-
-
   //now check the enpassant thingies
-  if(board[startSquare] == wPawn && startSquare+directionOffsets[1]*2 == targetSquare) //check if it's a white pawn and has moved 2 squares at the start
+  if(board[startSquare] == wPawn && startSquare+directionOffsets[0]*2 == targetSquare) //check if it's a white pawn and has moved 2 squares at the start
   {
-    board[startSquare+directionOffsets[1]] = wEnPassantPawn;
-  }else if(board[startSquare] == bPawn && startSquare+directionOffsets[0]*2 == targetSquare)
+    board[startSquare+directionOffsets[0]] = wEnPassantPawn;
+  }else if(board[startSquare] == bPawn && startSquare+directionOffsets[1]*2 == targetSquare)
   {
-    board[startSquare+directionOffsets[0]] = bEnPassantPawn;
+    board[startSquare+directionOffsets[1]] = bEnPassantPawn;
   }
   //now check if the target square was on an enpassant piece and that a pawn moved on it
   if(board[targetSquare] != "" && board[targetSquare].charAt(1) == "e" && board[startSquare].charAt(1) == "p")
@@ -377,12 +505,12 @@ function enPassantCheck(startSquare, targetSquare)
 }
 function upgradePawnLogic(startSquare, targetSquare)
 {
-  if(targetSquare > -1 && targetSquare < 8 && board[startSquare] == bPawn)
-  {
-    board[startSquare] = bQueen;
-  }
-  else if (targetSquare > 55 && targetSquare < 64 && board[startSquare] == wPawn)
+  if(targetSquare > -1 && targetSquare < 8 && board[startSquare] == wPawn)
   {
     board[startSquare] = wQueen;
+  }
+  else if (targetSquare > 55 && targetSquare < 64 && board[startSquare] == bPawn)
+  {
+    board[startSquare] = bQueen;
   }
 }

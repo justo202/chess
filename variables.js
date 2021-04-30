@@ -22,9 +22,10 @@ var directionOffsets = [-8, 8, 1, -1, -9, -7, 7, 9];
 var squaresToEdge = [];
 var board =  new Array(64).fill("");
 var castling = [0,0,0,0]; //array that determines if castling is possible for the king (0 means it's possible, 1 means it's not)
-
-
-var fenstr = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+var gameOver = 0;
+var aiOn = 0; //toogles computer player on and off
+var compColor = "b";
+var fenstr = "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr";
 
 
 
