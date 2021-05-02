@@ -99,9 +99,9 @@ function parseLine(item, index)
     }
   }
 }
+
 function toogleOpponent()
 {
-
   var btn = document.getElementById("toogle-btn");
   var txt = document.getElementById("btn-txt");
   btn.onclick = function()

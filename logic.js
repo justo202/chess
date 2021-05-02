@@ -1,20 +1,14 @@
-/*
-generating legal moves.
- make a function that will check in all possible directions if a king is under attack in the current position
-*/
 
-function precomputeData() //calculates the distance to the side from each square
+//calculates the distance to the side from each square and initialises the starting position of the board
+function precomputeData()
 {
   for (var j = 0; j < 8; j++){
-
     for (var i = 0; i < 8; i++){
-
       //calculates the distance to the edge of a square from every direction
       var north = j;
       var south = 7-j;
       var west = i;
       var east = 7-i;
-
       var square = [north, south, east, west, Math.min(north,west), Math.min(north,east), Math.min(south,west),Math.min(south,east)];
       squaresToEdge.push(square);
     }
@@ -23,10 +17,32 @@ function precomputeData() //calculates the distance to the side from each square
   moves = generateMoves();
 
 }
+function undoMove()
+{
+  var btn = document.getElementById("undo-btn");
+  btn.onclick = function()
+  {
+    if(turnNumber > 1 && (aiOn == 0) && backup == 1) //only available when AI is off
+    {
+      backup = 0;
+      board = cloneBoard(prevBoardState);
+      castling = cloneCastle(previousCastling);
+      fenstr = updateFenStr()
+      var temp = [];
+      cleanBoard(temp);
+      parseFen(fenstr); //refreshes the board
+      stage.update();
+      changeTurn();
+      moves = generateMoves();
+    }
+
+  };
+}
 function initialiseFenString(fenStr)
 {
   let lines = fenStr.split("/");
   lines.forEach(parseFenLine);
+  prevBoardState = cloneBoard(board);
 }
 function parseFenLine(item, index)
 {
@@ -265,7 +281,7 @@ function generateSlidingPiece(startSquare, piece, moves)
         gameOver = 1;
         break;
       }
-      
+
         moves.push(move);
       if((pieceOnSquare != "" && pieceOnSquare.charAt(1) != "e" && pieceOnSquare.charAt(0) != currentTurn) || (!castlingMove(direction,piece,n,targetSquare) &&piece.charAt(1) == "k")) //if it's the opposite color piece then capture it and move to the next direction
       {
@@ -295,6 +311,13 @@ function castlingMove(curDirection, piece, num, targetSquare)
 }
 function moveMade(startSquare, targetSquare)
 {
+  if(aiOn == 0)
+  {
+    backup = 1;
+  }
+  turnNumber++; //incriment the turn number
+  previousCastling = cloneCastle(castling); //save the previous board state before doing anything else
+  prevBoardState = cloneBoard(board);
   if(castling.includes(0)) //check if its still possible for a king to castle
   {
     executeCastling(startSquare, targetSquare);

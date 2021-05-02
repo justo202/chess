@@ -10,9 +10,18 @@
   <body onload="init();" style = "background-color:#424554">
 
     <div class="mt-3 container d-flex align-items-center">
-      <canvas class = "d-flex align-items-center" id="demoCanvas" width="600" height="600" style = "z-index:1; background-color:#545a75">
-      </canvas>
-      <button id = "toogle-btn" class = "btn btn-secondary ml-2" type="button" name="button"><h5 id ="btn-txt">Enable Computer opponent</h5></button>
+      <div class="row">
+        <div class="col">
+          <canvas class = "d-flex align-items-center" id="demoCanvas" width="600" height="600" style = "z-index:1; background-color:#545a75">
+          </canvas>
+        </div>
+
+        <div class="mt-5 col">
+          <button id = "toogle-btn" class = "mb-2 btn btn-secondary ml-2" type="button" style = "width: 100%" name="button"><h5 id ="btn-txt">Enable AI opponent</h5></button>
+          <button id = "undo-btn" class = "mt-2 btn btn-secondary ml-2" type="button" style = "width: 100%" name="button"><h5 id ="btn-txt">Undo Move</h5></button>
+        </div>
+      </div>
+
     </div>
 
     <div class="top align-middle" id = "top" style = "display: none;">
