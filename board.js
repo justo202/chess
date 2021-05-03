@@ -1,7 +1,6 @@
 
+//Loads the necesarry assets for the game
 function createGrid() {
-
-
   createChessGrid();
   createjs.Ticker.setFPS(60);
   createjs.Ticker.addEventListener("tick", stage);
@@ -36,6 +35,7 @@ function handleFileLoad(event)
    pieceImages.push(image);
 }
 
+//load the images only after the assets have been loaded
 function handleComplete(event) {
   console.log("Loading Completed");
 parseFen(fenstr) //sets the board up
@@ -46,6 +46,7 @@ function parseFen(fenStr)
   let lines = fenStr.split("/");
   lines.forEach(parseLine);
 }
+//Parses each fen strings line and places the piece image on the correct spot
 function parseLine(item, index)
 {
   var y = index;
@@ -99,14 +100,14 @@ function parseLine(item, index)
     }
   }
 }
-
+//Toogles AI off and on
 function toogleOpponent()
 {
   var btn = document.getElementById("toogle-btn");
   var txt = document.getElementById("btn-txt");
   btn.onclick = function()
 {
-  if(aiOn == 0)
+  if (aiOn == 0)
   {
     aiOn = 1;
     txt.innerHTML = "Disable Ai opponent";
@@ -114,7 +115,6 @@ function toogleOpponent()
         compColor = "w";
       else
         compColor = "b";
-
   }
   else
   {
@@ -122,11 +122,8 @@ function toogleOpponent()
     txt.innerHTML = "Enable Ai opponent"
   }
 };
-
-
-
-
 }
+//function that runs when a piece is clicked, which also enables drag and drop
 function onclickPiece(evt)
 {
   var x = evt.currentTarget.gridx;
@@ -136,7 +133,7 @@ function onclickPiece(evt)
   var movable = 0; //0 is false
   for(var n = 0; n < moves.length;n++)
   {
-    if(moves[n].startSquare == tileNumber)
+    if(moves[n].startSquare == tileNumber) //if there's a move which has the piece on the start square, means the piece can be moved
     {
       movable = 1; //1 means it's true (piece is movable)
       var targetx = moves[n].targetSquare%8; //gets the x index
@@ -162,6 +159,7 @@ function onclickPiece(evt)
     });
   }
 }
+//enables the piece to be dragged around
 function dragPiece(evt)
 {
   evt.currentTarget.x = evt.stageX-WIDTH/2;
@@ -169,9 +167,10 @@ function dragPiece(evt)
   stage.setChildIndex(evt.currentTarget, stage.getNumChildren()-1); //brings piece to the front
   stage.update();
 }
+//executes when the piece is dropped in a location
 function dropPiece(evt, availableTiles, startx, starty)
 {
-  var correct = 0;
+  var correct = 0; //variable that decides if the piece was placed in the correct spot
   for(var i = 0; i < availableTiles.length;i++)
   {
     if(intersect(availableTiles[i]))
@@ -195,7 +194,7 @@ function dropPiece(evt, availableTiles, startx, starty)
       break;
     }
   }
-  cleanBoard(availableTiles);
+  cleanBoard(availableTiles); // cleans the board of all pieces
 
   if(correct == 0) // if the piece was not placed in the correct place, then return it to it's original square.
   {
@@ -215,8 +214,7 @@ function dropPiece(evt, availableTiles, startx, starty)
 //removes all the squares that indicate moves from the board and all the pieces
 function cleanBoard(shapes)
 {
-
-  for(var i = 0; i < shapes.length;i++)
+  for(var i = 0; i < shapes.length;i++) //removes all the red squares
   {
     stage.removeChild(shapes[i]);
   }
@@ -235,6 +233,7 @@ function intersect(obj){
   if(stage.mouseY > bottom || stage.mouseY < obj.y) return false;
   return true;
 }
+//Creates the chess grid
 function createChessGrid() {
   var color = "w";
   for (var j = 0; j < 8; j++) {
@@ -256,9 +255,8 @@ function createChessGrid() {
     }
     grid.push(line);
   }
-  // grid[0][7].graphics.clear().beginFill("#3281FF").drawRect(0, 0, WIDTH, HEIGHT).endFill();
 }
-
+//creates a new tile for the grid
 function createTile(x, y, color) {
   var tile = new createjs.Shape();
   if (color == "w")
@@ -273,36 +271,3 @@ function createTile(x, y, color) {
   tile.setBounds(tile.x,tile.y,WIDTH,HEIGHT);
   return tile;
 }
-/*
-var shape = new createjs.Shape();
- var shape2 = new createjs.Shape();
-shape.graphics.beginBitmapFill(image, "no-repeat").drawRect(0,0,HEIGHT,WIDTH).endFill();
-shape2.graphics.drawRect(0,0,HEIGHT,WIDTH);
-shape2.style = "";
-shape.addEventListener("click", handleClick);
-shape.x = 20;
-shape.y = 20;
-shape2.x = 20;
-shape2.y = 20;
-function handleClick(event) {
-event.target.x = 100;
-if(shape2.style == "")
-{
-  shape2.graphics.clear().beginFill("red").drawRect(0,0,HEIGHT,WIDTH).endFill();
-  shape2.style = "red"
-}
-else {
-  shape2.graphics.clear();
-  shape2.style = "";
-}
-shape2.x = shape.x;
-shape2.y = shape.y;
-stage.update();
-}
-stage.addChild(shape2);
-stage.addChild(shape);
-stage.update();
-}
-
-
-*/
