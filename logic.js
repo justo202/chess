@@ -19,7 +19,7 @@ function precomputeData() {
   moves = generateMoves();
 
 }
-//undoes the most recent move
+//Uses the Command pattern to undo a move that a player did beforehand
 function undoMove() {
   var btn = document.getElementById("undo-btn");
   btn.onclick = function() {
