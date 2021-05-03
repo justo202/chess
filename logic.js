@@ -19,7 +19,7 @@ function precomputeData() {
   moves = generateMoves();
 
 }
-//undoes the most recent move
+//Uses the Command pattern to undo a move that a player did beforehand
 function undoMove() {
   var btn = document.getElementById("undo-btn");
   btn.onclick = function() {
@@ -247,6 +247,7 @@ function generateSlidingPiece(startSquare, piece, moves) {
       };
       if (pieceOnSquare != "" && pieceOnSquare.charAt(1) == "k" && pieceOnSquare.charAt(0) != currentTurn) //if there's a move that can capture the opponents king the game is over
       {
+        moves.push(move);
         gameOver = 1;
         break;
       }

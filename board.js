@@ -40,13 +40,13 @@ function handleComplete(event) {
   console.log("Loading Completed");
 parseFen(fenstr) //sets the board up
 }
-//parses a given fen string
+//parses a given fen string (Update method)
 function parseFen(fenStr)
 {
   let lines = fenStr.split("/");
   lines.forEach(parseLine);
 }
-//Parses each fen strings line and places the piece image on the correct spot
+//Parses each fen strings line and places the piece image on the correct spot. (Update method)
 function parseLine(item, index)
 {
   var y = index;
@@ -105,10 +105,12 @@ function toogleOpponent()
 {
   var btn = document.getElementById("toogle-btn");
   var txt = document.getElementById("btn-txt");
+  var undobtn = document.getElementById("undo-btn");
   btn.onclick = function()
 {
   if (aiOn == 0)
   {
+    undobtn.style.visibility = "hidden";
     aiOn = 1;
     txt.innerHTML = "Disable Ai opponent";
       if(currentTurn == "b")
@@ -120,6 +122,7 @@ function toogleOpponent()
   {
     aiOn = 0;
     txt.innerHTML = "Enable Ai opponent"
+    undobtn.style.visibility = "visible";
   }
 };
 }
