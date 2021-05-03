@@ -145,13 +145,13 @@ function evaluateBishop(i)
   }
   if(centerDistanceY < 0)
     centerDistanceY*=-1;
-  val = bishop+10-(centerDistanceY);
+  val = bishop+10-(centerDistanceY*2);
   return val;
 }
 //evaluates the queen, the closer to center the better
 function evaluateQueen(i)
 {
-  var val = knight;
+  var val;
   var y = Math.trunc(i/8);
   var centerDistanceY;
   if(compColor == "w")
@@ -163,7 +163,7 @@ function evaluateQueen(i)
   }
   if(centerDistanceY < 0)
     centerDistanceY*=-1;
-  val = queen+20-(centerDistanceY*4);
+  val = queen+20-(centerDistanceY*2);
   return val;
 }
 //Evaluates the pawn, the closer the pawn is to the opponent, the better the value
@@ -173,10 +173,10 @@ function eveluatePawn(i)
   var y = Math.trunc(i/8);
   if(compColor == "w")
   {
-    val = pawn+1*((y-7)*-1);
+    val = pawn+2*((y-7)*-1);
   }
   else {
-    val = pawn+1*y;
+    val = pawn+2*y;
   }
   return val;
 }
