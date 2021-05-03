@@ -247,6 +247,7 @@ function generateSlidingPiece(startSquare, piece, moves) {
       };
       if (pieceOnSquare != "" && pieceOnSquare.charAt(1) == "k" && pieceOnSquare.charAt(0) != currentTurn) //if there's a move that can capture the opponents king the game is over
       {
+        moves.push(move);
         gameOver = 1;
         break;
       }

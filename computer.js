@@ -7,12 +7,12 @@ const knight = 300;
 const bishop = 400;
 const rook = 500;
 const queen = 900;
-const king = 50000;
+const king = 80000;
 
 //Makes the computer search for the best move and execute it
 function computerMakeMove()
 {
-  var bestMove = searchForMove(6);
+  var bestMove = searchForMove(3);
   moveMade(bestMove.startSquare, bestMove.targetSquare);
 }
 //searches for the best move the AI can make
@@ -127,7 +127,7 @@ function evaluateKnight(i)
     centerDistanceX = x-4;
     if(centerDistanceX < 0)
       centerDistanceX*=-1;
-  val = knight+20-(centerDistanceY*2)-(centerDistanceX*2);
+  val = knight+20-(centerDistanceY*3)-(centerDistanceX*3);
   return val;
 }
 //evaluates a bishop, the closer to center the better the value
@@ -163,7 +163,7 @@ function evaluateQueen(i)
   }
   if(centerDistanceY < 0)
     centerDistanceY*=-1;
-  val = queen+30-(centerDistanceY*4);
+  val = queen+20-(centerDistanceY*4);
   return val;
 }
 //Evaluates the pawn, the closer the pawn is to the opponent, the better the value
